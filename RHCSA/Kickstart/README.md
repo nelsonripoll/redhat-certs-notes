@@ -1,20 +1,6 @@
 # Kickstart
 [Red Hat Kickstart Syntax](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/installation_guide/sect-kickstart-syntax)
 
-
-## Basic Configuration
-```
-# system language
-lang en_US.UTF-8
-
-# keyboard layouts
-keyboard --vckeymap=us --xlayouts='us'
-
-# system timezone
-timezone America/Chicago --nontp
-```
-
-
 ## Installation Method
 You must specify whether you are installing or upgrading the system.
 ```
@@ -89,18 +75,51 @@ install
 url --url http://server/path
 ```
 
+## Partition Information
+```
+ignoredisk --only-use=vda
+clearpart  --none --initlabel
+
+part /boot --ondisk=vda --fstype="ext4"  --size=1024  --label="boot"
+part swap  --ondisk=vda --fstype="swap"  --size=2048  --label="swap"
+part pv.01 --ondisk=vda --fstype="lvmpv" --size=10240 --grow
+
+volgroup vg_01 --pesize=4096 pv.01
+
+logvol /home --vgname=vg_01 --name=home --label="home" --fstype="xfs" --size=1024
+logvol /     --vgname=vg_01 --name=root --label="root" --fstype="xfs" --size=9216 --grow
+```
+
+## Localization
+```
+# system language
+lang en_US.UTF-8
+
+# keyboard layouts
+keyboard --vckeymap=us --xlayouts='us'
+
+# system timezone
+timezone America/Chicago --nontp
+```
+
 
 ## Boot Loader Options
-
-
-## Partition Information
-
+```
+bootloader --append=" crashkernel=auto" --location=mbr --boot-drive=vda
+```
 
 ## Network Configuration
-
+```
+network  --bootproto=static --device=eth0 --gateway=192.168.122.1 --ip=192.168.122.50 --nameserver=192.168.122.1 --netmask=255.255.255.0 --ipv6=auto --activate
+network  --hostname=server1.example.com
+```
 
 ## Authentication
-
+```
+rootpw --plaintext ROOTPW
+user --groups=wheel --name=admin --password=USERPW --plaintext --gecos="Administrator"
+user --name=username --password=USERPW --plaintext --gecos="Regular User"
+```
 
 ## Firewall Configuration
 Specify the firewall configuration for the installed system.
@@ -148,6 +167,15 @@ firewall --enabled --trust em1 --trust em2 --http --ftp --ssh --telnet --smtp --
 
 
 ## Package Selection
+```
+%packages
+@core
+@base
+@development
+kexec-tools
+NetworkManager
+%end
+```
 
 
 ## Pre-Installation Script
