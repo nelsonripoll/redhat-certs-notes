@@ -1,12 +1,4 @@
 # Simple HTTP and FTP
-Apache web server is the default HTTP server and vsFTP is the default corresponding
- FTP server. Configuration is simple and SELinux should be enabled.
-
-1. Configure the noted services and enable them to start when the system is booted.
-2. Mount and copy the contents of the CentOS 7 installation DVD or ISO to the
- appropriate directory.
-3. Make sure the contents of the noted directories are configured with the right
- SELinux contexts.
 
 ## HTTP
 
