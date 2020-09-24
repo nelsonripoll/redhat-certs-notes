@@ -1,4 +1,4 @@
-# Configure Simple File Sharing
+# Simple HTTP and FTP
 Apache web server is the default HTTP server and vsFTP is the default corresponding
  FTP server. Configuration is simple and SELinux should be enabled.
 
@@ -8,149 +8,116 @@ Apache web server is the default HTTP server and vsFTP is the default correspond
 3. Make sure the contents of the noted directories are configured with the right
  SELinux contexts.
 
-## HTTP Service
-Apache web server uses the /var/www/html directory by default and subdirectories
- can be created for file sharing. The main Apache configuration file is located
- at /etc/httpd/conf/httpd.conf. The default port number is 80 and needs to be
- opened in any existing firewall.
+## HTTP
 
-To install Apache web server, we must install the **httpd** package:
+There are two services available for a http daemon on RHEL 8: Apache and NGinx.
 
-```
-# yum -y install httpd
-```
+### Apache
 
-Use the following to start the httpd service and enable it to run when the system
- boots up:
+#### Install and Configure Apache
+
+The package required to install Apache is **httpd**.
 
 ```
+# dnf info httpd
+Name         : httpd
+Version      : 2.4.37
+Release      : 21.module_el8.2.0+494+1df74eae
+Architecture : x86_64
+Size         : 1.7 M
+Source       : httpd-2.4.37-21.module_el8.2.0+494+1df74eae.src.rpm
+Repository   : AppStream
+Summary      : Apache HTTP Server
+URL          : https://httpd.apache.org/
+License      : ASL 2.0
+Description  : The Apache HTTP Server is a powerful, efficient, and extensible
+             : web server.
+# dnf -y install httpd
+# whereis httpd
+httpd: /usr/lib64/httpd /etc/httpd
 # systemctl start httpd
 # systemctl enable httpd
 ```
 
-To open the ports for the HTTP service, the following commands:
+The main configuration file is located at ```/etc/httpd/conf/httpd.conf```. The
+ default document root directory is located at ```/var/www/html```.
+
+### NGinx
+
+The package required to install NGinx is **nginx**.
 
 ```
-# firewall-cmd --permanent --add-service http
-# firewall-cmd --permanent --add-service https
+# dnf info nginx
+Name         : nginx
+Epoch        : 1
+Version      : 1.14.1
+Release      : 9.module_el8.0.0+184+e34fea82
+Architecture : x86_64
+Size         : 1.7 M
+Source       : nginx-1.14.1-9.module_el8.0.0+184+e34fea82.src.rpm
+Repository   : @System
+From repo    : AppStream
+Summary      : A high performance web server and reverse proxy server
+URL          : http://nginx.org/
+License      : BSD
+Description  : Nginx is a web server and a reverse proxy server for HTTP, SMTP, POP3 and
+             : IMAP protocols, with a strong focus on high concurrency, performance and low
+             : memory usage.
+# dnf -y install nginx
+# whereis nginx
+nginx: /usr/sbin/nginx /usr/lib64/nginx /etc/nginx /usr/share/nginx /usr/share/man/man3/nginx.3pm.gz /usr/share/man/man8/nginx.8.gz
+# systemctl start nginx
+# systemctl enable nginx
+```
+
+The main configuration file is located at ```/etc/nginx/nginx.conf```. The defaut
+ document root is located at ```/usr/share/nginx/html```.
+
+### HTTP(S) Firewall
+
+```
+# firewall-cmd --zone=public --permanent --add-service=http
+# firewall-cmd --zone=public --permanent --add-service=https
 # firewall-cmd --reload
 ```
 
-To verify that everything is configured correctly, navigate your browser to 
- http://localhost or http://127.0.0.1 and you should see the default Apache
- web page.
+## FTP
 
-## FTP Service
-The Red Hat implementation of the vsFTP server uses the /var/ftp/pub directory
- for published files. The main FTP configuration file is located at 
- /etc/vsftpd/vsftpd.conf. The default ports for FTP is 20 and 21.
+There is one service available for a ftp daemon on RHEL 8: Very Secure FTP
 
-To install FTP server, we must install the **vsftpd** package:
+### Very Secure FTP
+
+The package required to install Very Secure FTP is **vsftpd**.
 
 ```
-# yum -y install vsftpd
-```
-
-Use the following to start the vsftpd service and enable it to run when the system
- boots up:
-
-```
+# dnf info vsftpd
+Name         : vsftpd
+Version      : 3.0.3
+Release      : 31.el8
+Architecture : x86_64
+Size         : 343 k
+Source       : vsftpd-3.0.3-31.el8.src.rpm
+Repository   : @System
+From repo    : AppStream
+Summary      : Very Secure Ftp Daemon
+URL          : https://security.appspot.com/vsftpd.html
+License      : GPLv2 with exceptions
+Description  : vsftpd is a Very Secure FTP daemon. It was written completely from
+             : scratch.
+# dnf -y install vsftpd
+# whereis vsftpd
+vsftpd: /usr/sbin/vsftpd /etc/vsftpd /usr/share/man/man8/vsftpd.8.gz
 # systemctl start vsftpd
 # systemctl enable vsftpd
 ```
 
-To open the ports for the FTP service, run the following commands:
+The main configuration file is located at ```/etc/vsftpd/vsftpd.conf```. The
+ default document root directory is located at ```/var/ftp/pub```.
+
+### FTP Firewall
 
 ```
-# firewall-cmd --permanent --add-service ftp
+# firewall-cmd --zone=public --permanent --add-service=ftp
+# firewall-cmd --zone=public --permanent --add-service=sftp
 # firewall-cmd --reload
 ```
-
-To verify that everything is configured correctly, navigate your browser to 
- ftp://localhost or ftp://127.0.0.1 and you should see the contents of the ftp
- directories.
-
-## Mount and Copy
-The **mount** command is used to connect a device (partition, USB, DVD drive, etc.)
- to a specified directory. For example, if the DVD is properly configured, it should
- automatically find the appropriate filesystem format from the /etc/filesystems
- file and can be mounted with the following command:
-
-```
-# mount /dev/cdrom /media
-```
-
-Alternatively, you can mount an ISO file to a directory:
-
-```
-# mount -o loop centos7.iso /media
-```
-
-Now you can copy the contents of the DVD or ISO to a directory configured on the
- file server of your choice (HTTP or FTP). The following copies all files in
- archive mode (-a) recursively:
-
-```
-# cp -a /media/. /path/to/dir
-```
-
-When you include the dot at the end of /media, you are including all hidden files
- in the copy command.
-
-### HTTP
-To copy the contents to the HTTP service, run the following commands:
-
-```
-# mkdir /var/www/html/inst
-# cp -a /media/. /var/www/html/inst/
-```
-
-### FTP
-To copy the contents to the HTTP service, run the following commands:
-
-```
-# mkdir /var/ftp/pub/inst
-# cp -a /media/. /var/ftp/pub/inst/
-```
-
-## SELinux Context
-
-To ensure the contents of the /var/www/html/inst directory has the correct
- SELinux context, run the following command:
-
-```
-# chcon -R --reference=/var/www/html /var/www/html/inst
-```
-
-The SELinux context for /var/www/html is httpd_sys_content_t and can be applied 
- directly:
-
-```
-# chcon -R -t httpd_sys_content_t /var/www/html/inst
-```
-
-To ensure the contents of the /var/ftp/pub/inst directory has the correct
- SELinux context, run the following command:
-
-```
-# chcon -R --reference=/var/ftp/pub /var/ftp/pub/inst
-```
-
-The SELinux context for /var/ftp/pub is public_content_t and can be applied 
- directly:
-
-```
-# chcon -R -t public_content_t /var/ftp/pub/inst
-```
-
-To view the context of a file or directly, you can use the **-Z** flag for the
- **ls** command:
- 
-```
-# ls -Z /var/www/
-drwxr-xr-x. root root system_u:object_r:httpd_sys_script_exec_t:s0 cgi-bin
-drwxr-xr-x. root root system_u:object_r:httpd_sys_content_t:s0 html
-```
-
-The **-R** switch applies the context recursively and the **--reference=/path/to/dir**
- switch applies the default SELinux context for that directory.
