@@ -1,5 +1,107 @@
 # Labs
 
+## Lab 1
+
+### Question
+
+List virtualization packages required to install KVM.
+
+Install virtualization packages.
+
+### Answer
+
+**Packages**
+
+Package        | Description
+-------------- | -------------------------------------------------------------
+qemu-kvm       | The main KVM package.
+libvirt        | The libvirtd service to manage hypervisors.
+libvirt-client | The virsh command and clients API to manage virtual machines.
+virt-install   | Command-line tools for creating VMs.
+virt-manager   | GUI VM administration tool.
+virt-top       | Command to display virtualization statistics.
+virt-viewer    | Graphical console to connect to VMs.
+
+```
+# dnf install -y qemu-kvm libvirt libvirt-client virt-install virt-manager virt-top virt-viewer
+```
+
+**Package Groups**
+
+Group                     | Description
+------------------------- | -------------------------------------------------------------
+Virtualization Hypervisor | Smallest possible virtualization host installation. 
+Virtualization Tools      | Tools for offline virtual image management.
+Virtualization Client     | Clients for installing and managing virtualization instances.
+
+```
+# dnf group install -y "Virtualization Hypervisor" "Virtualization Tools" "Virtualization Client"
+```
+
+## Lab 2a
+
+### Question
+
+Using the Virtual Machine Manager, create two virtual networks based on the table
+ below.
+
+Name     | Mode | IPv4 Network
+-------- | ---- | ----------------
+insider  | NAT  | 192.168.122.0/24
+outsider | NAT  | 192.168.100.0/24
+
+
+### Answer
+
+1. Open Virtual Machine Manager. Once opened, select the connection and open
+ Connection Details under the Edit menu.
+
+2. Click on the Virtual Networks tab, click the Add Network button at the bottom.
+
+3. Set the name, mode, and IPv4 network.
+
+4. Click Finish once completed. Repeat for the other networks.
+
+## Lab 2b
+
+### Question
+
+Using the virsh command, create two virtual networks based on the table
+ below.
+
+Name     | Mode | IPv4 Network
+-------- | ---- | ----------------
+insider  | NAT  | 192.168.122.0/24
+outsider | NAT  | 192.168.100.0/24
+
+
+### Answer
+
+## Lab 3a
+
+### Question
+
+Using the Virtual Machine Manager, create a new VM based on the information below.
+
+### Answer
+
+## Lab 3b
+
+### Question
+
+Using the virt-install command, create a new VM based on the information below.
+
+### Answer
+
+
+
+
+
+
+
+
+
+
 | System    | Hostname              | Network          | IP              |
 | --------- | --------------------- | ---------------- | --------------- |
 | server1   | server1.example.com   | 192.168.122.0/24 | 192.168.122.50  |
