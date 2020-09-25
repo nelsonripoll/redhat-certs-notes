@@ -186,6 +186,31 @@ ping (8) - send ICMP ECHO_REQUEST to network hosts
 
 ### grep
 
+The **grep** command uses a search term to look through a file. Regular expressions
+ can be used, which provides a powerful way to specify complex search patterns.
+ There are metacharacters to use that have special meanings, if they need to be
+ literal then precede them with a backslash.
+
+Metacharacter | Description
+------------- | --------------------------------------------------------
+.             | Any single character.
+[]            | Match any single character included within the brackets.
+?             | Match the preceding element zero or one times.
++             | Match the preceding element one or more times.
+*             | Match the preceding element zero or more times.
+^             | Match the beginning of a line.
+$             | Match the end of a line.
+
+The **grep** command has useful switches.
+
+Switch | Description
+------ | ----------------------------------------------------------------------
+-i     | Make the search case-insensitive.
+-E     | Enables the use of extended regular expression syntax.
+-v     | Reverses the matching. Returns lines that do not match the expression.
+-e     | Allows the use of multiple search patterns.
+
+
 ### sed
 
 ### awk
