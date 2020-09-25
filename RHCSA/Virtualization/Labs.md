@@ -91,9 +91,29 @@ Using the Virtual Machine Manager, create a new VM based on the information belo
 
 Using the virt-install command, create a new VM based on the information below.
 
+Name       | RAM  | CPU | Harddrive | Network  | Hostname               | IPv4
+---------- | ---- | --- | --------- | ---------| ---------------------- | ---------------
+labmachine | 1536 | 1   | 16 GiB    | internal | labmachine.example.com | 192.168.122.100
+
 ### Answer
 
-
+```
+virt-install --connect qemu:///system \
+             --name=labmachine \
+             --ram=1536 \
+             --vcpus=1 \
+             --os-type=linux \
+             --os-variant=centos8 \
+             --disk path=/var/lib/libvirt/images/outsider1-1.qcow2,size=16 \
+             --disk path=/var/lib/libvirt/images/outsider1-2.qcow2,size=2 \
+             --disk path=/var/lib/libvirt/images/outsider1-3.qcow2,size=2 \
+             --network network=outsider \
+             --location="ftp://192.168.100.1/pub/inst" \
+             --extra-args="ks=ftp://192.168.100.1/pub/ks.cfg" \
+             --extra-args="repo=ftp://192.168.100.1/pub/inst" \
+             --extra-args="ip=192.168.100.150::192.168.100.1:255.255.255.0:outsider1.example.org:enp1s0:none" \
+             --extra-args="dns=192.168.100.1"
+```
 
 
 
