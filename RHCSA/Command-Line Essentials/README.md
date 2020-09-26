@@ -56,10 +56,10 @@ Virtual terminals are defined by the /etc/systemd/logind.conf file. By default,
  virtual terminals but is limited by those allowed for the root administrative
  user in the /etc/securetty file.
 
-To change between virtual terminals, you press the __ALT+F*n*__ to move to the
- *n*th virtual terminal. For example, to swith to the 3rd virtual terminal, I
- would press **ALT+F3**. If I am using a GUI, I would need to use
- __ALT+CTRL+F*n*__ to move to the *n*th virtual terminal.
+To change between virtual terminals, press the __ALT+F*n*__ to move to the
+ *n*th virtual terminal. For example, to swith to the 3rd virtual terminal, press 
+ **ALT+F3**. If using a GUI, use __ALT+CTRL+F*n*__ to move to the *n*th virtual 
+ terminal.
 
 ## Navigation
 
@@ -160,19 +160,69 @@ ping (8) - send ICMP ECHO_REQUEST to network hosts
 ## Manage Files & Directories
 
 ### touch
+Change a file timestamps. If the file does not exist, it creates an empty file.
+
+Switch | Description
+------ | ----------------------------------------
+-a     | Change only the access time.
+-c     | Do not create any files.
+-d     | Datetime to use instead of current time.
+-m     | Change only the modification time.
 
 ### cp
+Copy files and directorys
+
+Switch | Description
+------ | --------------------------------------------------------------------------
+-f     | If an existing destination file cannot be opened, remove it and try again.
+-i     | Interactive prompt before overwrite.
+-r     | Copy directories recursively.
+-Z     | Set SELinux security context of destination file to default type.
 
 ### mv
+Move (rename) files and directories.
 
-### rm
+Switch | Description
+------ | --------------------------------------------------------------------------
+-f     | If an existing destination file cannot be opened, remove it and try again.
+-i     | Interactive prompt before overwrite.
+-u     | Move only when source file is newer than the destination file.
+-Z     | Set SELinux security context of destination file to default type.
 
 ### mkdir
+Make directories.
+
+Switch | Description
+------ | -----------------------------------------------------------------
+-p     | Make parent directories as needed.
+-Z     | Set SELinux security context of destination file to default type.
+
+### rm
+Remove files or directories.
+
+Switch | Description
+------ | --------------------------------------------------------------------------
+-f     | If an existing destination file cannot be opened, remove it and try again.
+-r     | Remove directories and their contents recursively.
+-d     | Remove empty directories.
+-i     | Interactive prompt before removal.
 
 ### rmdir
+Remove empty directories.
 
-### vi
+Switch | Description
+------ | --------------------------------------------------------------------------
+-p     | Remove directory and its ancestors.
 
+### nano
+A console text editor.
+
+TODO: requires documentation
+
+### vim
+A console text editor. Improved version of **vi**.
+
+TODO: requires documentation
 
 ## Text Streams
 
