@@ -160,6 +160,7 @@ ping (8) - send ICMP ECHO_REQUEST to network hosts
 ## Manage Files & Directories
 
 ### touch
+
 Change a file timestamps. If the file does not exist, it creates an empty file.
 
 Switch | Description
@@ -180,6 +181,7 @@ Switch | Description
 -Z     | Set SELinux security context of destination file to default type.
 
 ### mv
+
 Move (rename) files and directories.
 
 Switch | Description
@@ -190,6 +192,7 @@ Switch | Description
 -Z     | Set SELinux security context of destination file to default type.
 
 ### mkdir
+
 Make directories.
 
 Switch | Description
@@ -198,6 +201,7 @@ Switch | Description
 -Z     | Set SELinux security context of destination file to default type.
 
 ### rm
+
 Remove files or directories.
 
 Switch | Description
@@ -208,18 +212,21 @@ Switch | Description
 -i     | Interactive prompt before removal.
 
 ### rmdir
+
 Remove empty directories.
 
 Switch | Description
------- | --------------------------------------------------------------------------
+------ | -----------------------------------
 -p     | Remove directory and its ancestors.
 
 ### nano
+
 A console text editor.
 
 TODO: requires documentation
 
 ### vim
+
 A console text editor. Improved version of **vi**.
 
 TODO: requires documentation
@@ -228,11 +235,41 @@ TODO: requires documentation
 
 ### cat
 
+Concatenate files and print on the standard output.
+
+Switch | Description
+------ | -------------------------------------------------------------------------
+-n     | Number all output lines.
+-T     | Display TAB characters as ^I
+
 ### less & more
+
+Filter for paging through text one screenful at a time. **less** provides **more**
+ emulation plus extensive enhancements.
+
+Switch | Description
+------ | ------------------------------------------------------------------------------------------------------
+-f     | Count logical lines instead of screen lines.
+-p     | Do not scroll, clear whole screen then display the text.
+-c     | Do not scroll, paint each screen from the top, clearing the remainder of each line as it is displayed.
+-s     | Squeeze multiple blank lines into one.
 
 ### head & tail
 
+Output the first or last parts of files. **head** will print the first 10 lines
+ while **tail** will print the last 10.
+
+Switch | Description
+------ | -----------------------------------------------------------
+-n     | Print the first/last NUM lines instead of the first/last 10
+
 ### sort
+
+Sort lines of a text file.
+
+Switch | Description
+------ | ----------------------------------
+-r     | Reverse the result of comparisons.
 
 ### grep
 
@@ -251,8 +288,6 @@ Metacharacter | Description
 ^             | Match the beginning of a line.
 $             | Match the end of a line.
 
-The **grep** command has useful switches.
-
 Switch | Description
 ------ | ----------------------------------------------------------------------
 -i     | Make the search case-insensitive.
@@ -260,11 +295,35 @@ Switch | Description
 -v     | Reverses the matching. Returns lines that do not match the expression.
 -e     | Allows the use of multiple search patterns.
 
+### diff
 
-### sed
+Compare files line by line for differences.
 
-### awk
+Switch | Description
+------ | -----------------------------------------
+-i     | Ignore case differences in file contents.
+-a     | Treat all files as text.
+-w     | Ignore all white space.
+-B     | Ignore changes where lines are all blank.
 
+### wc
+
+Print newline, word, and byte counts for each file, and a total line if more than
+ one file is specified.
+
+Switch | Description
+------ | -----------------------------------------
+-c     | Print the byte counts.
+-m     | Print the character counts.
+-l     | Print the line counts.
+-w     | Print the word counts.
+
+### sed & awk
+
+**sed** is a stream editor for filtering and transforming text. **awk** is a
+ pattern scanning and processing language.
+
+TODO: requires documentation
 
 ## Command Redirection
 
@@ -277,3 +336,45 @@ Switch | Description
 ### 2>
 
 ### &>
+
+## Networking
+
+### ping
+
+**ping** uses the ICMP protocol's mandatory ECHO_REQUEST datagram to elicit an 
+ ICMP ECHO_RESPONSE from a host or gateway.
+
+Switch | Description
+------ | -----------------------------------------
+-4     | Use IPv4 only.
+-6     | Use IPv6 only.
+-c     | Stop after sending after _count_ ECHO_REQUEST packets.
+-i     | Wait _interval_ seconds between sending each packet.
+
+### telnet
+
+**telnet** is used to communicate with another host using the TELNET protocol.
+
+### traceroute
+
+**traceroute** tracks the route packets taken from an IP network on their way to 
+ a given host.
+
+### ss
+
+**ss** is used to dump socket statistics.
+
+### ip
+
+### ssh
+
+**ssh** (SSH client) is a program for logging into a remote machine and for 
+ executing commands on a remote machine.
+
+### nmap
+
+### mutt
+
+### lftp
+
+### curl
