@@ -325,18 +325,6 @@ Switch | Description
 
 TODO: requires documentation
 
-## Command Redirection
-
-### <
-
-### >
-
-### |
-
-### 2>
-
-### &>
-
 ## Networking
 
 ### ping
@@ -366,6 +354,19 @@ Switch | Description
 
 ### ip
 
+Show / manipulate routing, network devices, interfaces and tunnels.
+
+#### subcommands
+
+##### ip address (addr)
+
+The **ip address** command displays addresses and their properties, adds new 
+ addresses and deletes old ones.
+
+##### ip link
+
+The **ip link** command manages virtual links.
+
 ### ssh
 
 **ssh** (SSH client) is a program for logging into a remote machine and for 
@@ -373,8 +374,30 @@ Switch | Description
 
 ### nmap
 
+Nmap (“Network Mapper”) is an open source tool for network exploration and security 
+ auditing. Nmap uses raw IP packets in novel ways to determine what hosts are 
+ available on the network, what services (application name and version) those hosts 
+ are offering, what operating systems (and OS versions) they are running, what 
+ type of packet filters/firewalls are in use, and dozens of other characteristics. 
+ 
 ### mutt
+
+A small but very powerful text based program for reading and sending electronic 
+ mail under unix operating systems, including support for color terminals, MIME, 
+ OpenPGP, and a threaded sorting mode.
 
 ### lftp
 
+**lftp** is a file transfer program that allows sophisticated FTP, HTTP and 
+ other connections to other hosts. **lftp** can handle several file access methods 
+ - FTP, FTPS, HTTP, HTTPS, HFTP, FISH, SFTP and file (HTTPS and FTPS are only 
+ available when **lftp** is compiled with GNU TLS or OpenSSL library). Besides 
+ FTP-like protocols, **lftp** has support for BitTorrent protocol as `torrent' 
+ command. Seeding is also supported.
+
 ### curl
+
+**curl** is  a tool to transfer data from or to a server, using one of the supported 
+ protocols (DICT, FILE, FTP, FTPS, GOPHER, HTTP, HTTPS, IMAP, IMAPS, LDAP, LDAPS, 
+ POP3, POP3S, RTMP, RTSP, SCP, SFTP, SMB, SMBS, SMTP, SMTPS, TELNET and TFTP). 
+ The command is designed to work without user interaction.
