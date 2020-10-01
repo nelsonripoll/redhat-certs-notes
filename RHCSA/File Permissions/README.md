@@ -234,3 +234,69 @@ The biggest difference is the default user, group, mask, and other settings. For
  created that have named user ACLs, group owner ACL, or named group ACLs.
 
 ### Creating ACL Permissions
+
+The **setfacl** command is used to add, modify, or remove standard ACLs on files
+ and directories. When recursively setting ACLs, an uppercase **X** can be used
+ to indicate that execute permission should only be set on directories and not
+ regular files, unless the file already has the relevant execute permission.
+
+Switch | Description
+------ | ------------------------------------------
+-b     | Removes all ACL entries.
+-k     | Deletes default ACL entries.
+-m     | Modifies the ACL of a file.
+-n     | Omits the recalculation of the mask entry.
+-R     | Applies changes recursively.
+-x     | Removes specific ACL entry.
+
+#### Examples
+
+Add or modify a user or named user ACL:
+```
+setfacl -m u:name:rX file
+```
+
+Add or modify a group or named group ACL:
+```
+setfacl -m g:name:rw file
+```
+
+Add or modify the other ACL:
+```
+setfacl -m o::- file
+```
+
+Add multiple entries:
+```
+setfacl -m u::rwx,g:sodor:rX,o::- file
+```
+
+Use **getfacl** output as input to **setfacl**:
+```
+getfacl file1 | setfacl --set-file=- file2
+```
+
+Set an explicit ACL mask:
+```
+setfacl -m m::r file
+```
+
+Recursive ACL modifications:
+```
+setfacl -R -m u:name:rX directory
+```
+
+Deleting an ACL:
+```
+setfacl -x u:name,g:name file
+```
+
+Set a default user ACL on a directory:
+```
+setfacl -m d:u:name:rx directory
+```
+
+Delete a default ACL:
+```
+setfacl -x d:u:name directory
+```
