@@ -41,7 +41,7 @@ chmod ### file|directory
 ```
 
 * Each digit represents an access level: user, group, other.
-* # is the sum of r=4, w=2, and x=1.
+* \# is the sum of r=4, w=2, and x=1.
 
 #### Examples
 
