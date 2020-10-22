@@ -239,3 +239,99 @@ The ```semanage fcontext``` command can be used to display or modify the rules
 
 The ```restorecon``` command is part of the **policycoreutil** package, and
  ```semanage``` is part of the **policycoreutil-python** package.
+
+```
+# ls -lZ /var/ftp
+drwxr-xr-x. 3 root root system_u:object_r:public_content_t:s0 32 Sep 23 15:19 pub
+# touch /tmp/file1 /tmp/file2
+# ls -lZ /tmp/file*
+-rw-r--r--. 1 nripoll nripoll unconfined_u:object_r:user_tmp_t:s0 0 Oct 22 09:23 /tmp/file1
+-rw-r--r--. 1 nripoll nripoll unconfined_u:object_r:user_tmp_t:s0 0 Oct 22 09:23 /tmp/file2
+# mv /tmp/file1 /var/ftp/pub
+# cp /tmp/file2 /var/ftp/pub
+# ls -lZ /var/ftp/pub/file*
+-rw-r--r--. 1 nripoll nripoll unconfined_u:object_r:user_tmp_t:s0       0 Oct 22 09:23 /var/ftp/pub/file1
+-rw-r--r--. 1 root    root    unconfined_u:object_r:public_content_t:s0 0 Oct 22 09:27 /var/ftp/pub/file2
+# sudo semanage fcontext -l | grep "/var/ftp"
+/var/ftp(/.*)?                                     all files          system_u:object_r:public_content_t:s0 
+/var/ftp/bin(/.*)?                                 all files          system_u:object_r:bin_t:s0 
+/var/ftp/etc(/.*)?                                 all files          system_u:object_r:etc_t:s0 
+/var/ftp/lib(/.*)?                                 all files          system_u:object_r:lib_t:s0 
+/var/ftp/lib/ld[^/]*\.so(\.[^/]*)*                 regular file       system_u:object_r:ld_so_t:s0 
+# restorecon -Rv /var/ftp
+Relabeled /var/ftp/pub/file1 from unconfined_u:object_r:user_tmp_t:s0 to unconfined_u:object_r:public_content_t:s0
+# ls -lZ /var/ftp/pub/file*
+-rw-r--r--. 1 nripoll nripoll unconfined_u:object_r:public_content_t:s0 0 Oct 22 09:23 /var/ftp/pub/file1
+-rw-r--r--. 1 root    root    unconfined_u:object_r:public_content_t:s0 0 Oct 22 09:27 /var/ftp/pub/file2
+```
+
+```
+# mkdir /virtual
+# touch /virtual/index.html
+# ls -lZd /virtual
+drwxr-xr-x. 2 root root unconfined_u:object_r:default_t:s0 24 Oct 22 09:32 /virtual
+# ls -lZ /virtual
+-rw-r--r--. 1 root root unconfined_u:object_r:default_t:s0 0 Oct 22 09:32 index.html
+# semanage fcontext -z -t httpd_sys_content_t '/virtual(/.*)?'
+# sudo restorecon -RFvv /virtual
+Relabeled /virtual from unconfined_u:object_r:default_t:s0 to system_u:object_r:httpd_sys_content_t:s0
+Relabeled /virtual/index.html from unconfined_u:object_r:default_t:s0 to system_u:object_r:httpd_sys_content_t:s0
+# ls -lZd /virtual
+drwxr-xr-x. 2 root root system_u:object_r:httpd_sys_content_t:s0 24 Oct 22 09:32 /virtual
+# ls -lZ /virtual
+-rw-r--r--. 1 root root system_u:object_r:httpd_sys_content_t:s0 0 Oct 22 09:32 index.html
+```
+
+## Troubleshooting SELinux 
+
+There is a sequence of steps that should be taken if SELinux prevents access to
+ files on a server:
+
+1. Before thinking of making any adjustments, consider that SELinux may be doing
+ its job correctly by prohibiting the attempted access. If a web server tries to
+ access files in **/home**, this could signal a compromise of the service if web
+ content isn't published by users. If access should have been granted, then
+ additional steps need to be taken to solve the problem.
+
+2. The most common SELinux issue is an incorrect file context. This can occur
+ when a file is created in a location with one file context and moved into a
+ place where a different context is expected. In most cases, running ```restorecon```
+ will correct the issue. Correcting issues in this way has a very narrow impact
+ on the security of the rest of the system.
+
+3. Another remedy for a too-restrictive access could be the adjustment of a
+ SELinux boolean. For example, the **ftpd_anon_write** boolean controls whether
+ anonymous FTP users can upload files. This boolean would have to be turned on
+ if it is desirable to allow anonymous FTP users to upload files to a server.
+ Adjusting booleans requires more care because they can have a broad impact on
+ system security.
+
+4. It is possible that the SELinux policy has a bug that prevents a legitimate
+ access. If a bug has been identified, contact Red Hat support to report the bug
+ so it can be resolved.
+
+The **setroubleshoot-server** package must be installed to send SELinux messages
+ to **/var/log/messages**. **setroubleshoot-server** listens for audit messages
+ in **/var/log/audit/audit.log** and sends a short summary to **/var/log/messages**.
+ This summary includes unique identifiers (UUIDs) for SELinux violations that can
+ be used to gather further information. ```sealert -a /var/log/audit/ -l UUID```
+ is used to produce a report for a specific incident. ```sealert -a /var/log/audit/audit.log```
+ is used to produce reports for all incidents in that file.
+
+```
+# systemctl start nginx
+# touch /root/test.html
+# mv /root/test.html /use/share/nginx/html/test.html
+# curl http://localhost/test.html
+<html>
+<head><title>403 Forbidden</title></head>
+<body bgcolor="white">
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx/1.14.1</center>
+</body>
+</html>
+# tail /var/log/audit/audit.log
+type=AVC msg=audit(1603393236.883:1279): avc:  denied  { read } for  pid=279289 comm="nginx" name="test.html" dev="sda3" ino=269128708 scontext=system_u:system_r:httpd_t:s0 tcontext=unconfined_u:object_r:admin_home_t:s0 tclass=file permissive=0
+# tail /var/log/messages
+Oct 22 14:00:41 localhost platform-python[280008]: SELinux is preventing nginx from read access on the file test.html.#012#012*****  Plugin catchall (100. confidence) suggests   **************************#012#012If you believe that nginx should be allowed read access on the test.html file by default.#012Then you should report this as a bug.#012You can generate a local policy module to allow this access.#012Do#012allow this access for now by executing:#012# ausearch -c 'nginx' --raw | audit2allow -M my-nginx#012# semodule -X 300 -i my-nginx.pp#012
+```
