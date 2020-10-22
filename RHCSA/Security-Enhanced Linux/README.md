@@ -215,27 +215,27 @@ There is a policy rule that permits the web server process running as **httpd\_t
 
 The SELinux context of a file's parent directory determines its initial SELinux
  context. The context of the parent directory is assigned to the newly created
- file. This works for commands like **vim**, **cp**, and **touch**. However, if
- a file is created elsewhere and the permissions are preserved (as with **mv**
- or **cp -a**), the original SELinux context will be unchanged.
+ file. This works for commands like ```vim```, ```cp```, and ```touch```. However, 
+ if a file is created elsewhere and the permissions are preserved (as with ```mv```
+ or ```cp -a```), the original SELinux context will be unchanged.
 
-The **chcon** command changes the context of the file to the context specified 
+The ```chcon``` command changes the context of the file to the context specified 
  as an argument to the command. Often the **-t** option is used to specify only 
  the type component of the context. This is only temporary however, as the
- original context would be restored if you run **restorecon** or relabel your
+ original context would be restored if you run ```restorecon``` or relabel your
  system.
 
-The **restorecon** command is the preferred method for changing the SELinux
- context of a file or directory. Unlike **chcon**, the context is not specified
+The ```restorecon``` command is the preferred method for changing the SELinux
+ context of a file or directory. Unlike ```chcon```, the context is not specified
  when using this command. It uses rule in the SELinux policy to determine what
  the context of the file should be.
 
-The **semanage fcontext** command can be used to display or modify the rules
- that the **restorecon** command uses to set default file contexts. It uses
+The ```semanage fcontext``` command can be used to display or modify the rules
+ that the ```restorecon``` command uses to set default file contexts. It uses
  regular expressions to specify the path and file names. The most common extended
- regular expression used in **fcontext** rules is **(/.*)?**, which means
- match the directory listed before the expression and everything in that
- directory recursively.
+ regular expression used in **fcontext** rules is **(/.*)?**, which will match
+ the directory listed before the expression and everything in that directory 
+ recursively.
 
-The **restorecon** command is part of the **policycoreutil** package, and
- **semanage** is part of the **policycoreutil-python** package.
+The ```restorecon``` command is part of the **policycoreutil** package, and
+ ```semanage``` is part of the **policycoreutil-python** package.
