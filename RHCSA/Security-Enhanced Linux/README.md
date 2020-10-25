@@ -333,5 +333,59 @@ The **setroubleshoot-server** package must be installed to send SELinux messages
 # tail /var/log/audit/audit.log
 type=AVC msg=audit(1603393236.883:1279): avc:  denied  { read } for  pid=279289 comm="nginx" name="test.html" dev="sda3" ino=269128708 scontext=system_u:system_r:httpd_t:s0 tcontext=unconfined_u:object_r:admin_home_t:s0 tclass=file permissive=0
 # tail /var/log/messages
+Oct 22 14:00:41 localhost setroubleshoot[280008]: SELinux is preventing nginx from read access on the file test.html. For complete SELinux messages run: sealert -l fe6f56fd-2efc-47c2-af84-631ec6e64eb7
 Oct 22 14:00:41 localhost platform-python[280008]: SELinux is preventing nginx from read access on the file test.html.#012#012*****  Plugin catchall (100. confidence) suggests   **************************#012#012If you believe that nginx should be allowed read access on the test.html file by default.#012Then you should report this as a bug.#012You can generate a local policy module to allow this access.#012Do#012allow this access for now by executing:#012# ausearch -c 'nginx' --raw | audit2allow -M my-nginx#012# semodule -X 300 -i my-nginx.pp#012
+```
+
+Even though the contents of **test.html** are expected, the web server returns an
+ error. Inspecting both **/var/log/audit.log** and **/var/log/messages** can
+ reveal some extra information about this error.
+
+Both log files indicate that an SELinux denial is the culprit. The ```sealert```
+ command detailed in **/var/log/messages** can provide some extra information, 
+ including a possible fix.
+
+```
+# sealert -l fe6f56fd-2efc-47c2-af84-631ec6e64eb7 
+SELinux is preventing nginx from read access on the file test.html.
+
+*****  Plugin catchall (100. confidence) suggests   **************************
+
+If you believe that nginx should be allowed read access on the test.html file by default.
+Then you should report this as a bug.
+You can generate a local policy module to allow this access.
+Do
+allow this access for now by executing:
+# ausearch -c 'nginx' --raw | audit2allow -M my-nginx
+# semodule -X 300 -i my-nginx.pp
+
+
+Additional Information:
+Source Context                system_u:system_r:httpd_t:s0
+Target Context                unconfined_u:object_r:admin_home_t:s0
+Target Objects                test.html [ file ]
+Source                        nginx
+Source Path                   nginx
+Port                          <Unknown>
+Host                          DESKTOP-CDAHF4O.lan1
+Source RPM Packages           
+Target RPM Packages           
+Policy RPM                    selinux-policy-3.14.3-41.el8_2.6.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Enforcing
+Host Name                     DESKTOP-CDAHF4O.lan1
+Platform                      Linux DESKTOP-CDAHF4O.lan1
+                              4.18.0-193.19.1.el8_2.x86_64 #1 SMP Mon Sep 14
+                              14:37:00 UTC 2020 x86_64 x86_64
+Alert Count                   1
+First Seen                    2020-10-25 14:25:51 CDT
+Last Seen                     2020-10-25 14:25:51 CDT
+Local ID                      fe6f56fd-2efc-47c2-af84-631ec6e64eb7
+
+Raw Audit Messages
+type=AVC msg=audit(1603653951.32:245): avc:  denied  { read } for  pid=38243 comm="nginx" name="test.html" dev="sdb3" ino=537187242 scontext=system_u:system_r:httpd_t:s0 tcontext=unconfined_u:object_r:admin_home_t:s0 tclass=file permissive=0
+
+
+Hash: nginx,httpd_t,admin_home_t,file,read
 ```
