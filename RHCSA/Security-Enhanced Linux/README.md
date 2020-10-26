@@ -282,6 +282,52 @@ drwxr-xr-x. 2 root root system_u:object_r:httpd_sys_content_t:s0 24 Oct 22 09:32
 -rw-r--r--. 1 root root system_u:object_r:httpd_sys_content_t:s0 0 Oct 22 09:32 index.html
 ```
 
+## SELinux Users
+
+To review the status of current SELinux users, run the ```semanage login -l```
+ command.
+
+```
+# semanage login -l
+
+Login Name           SELinux User         MLS/MCS Range        Service
+
+__default__          unconfined_u         s0-s0:c0.c1023       *
+root                 unconfined_u         s0-s0:c0.c1023       *
+```
+
+The regular "default" users have the same SELinux user context of the root
+ administrative user. To confirm, run the ```id -Z``` command as a regular user.
+ Without changes, it should lead to the following output:
+
+```
+# id -Z
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+```
+
+To add SELinux user context to a login:
+
+```
+# semanage login -a -s user_u username
+```
+
+When a user role is changed, it does not take effect until the next login.
+
+To change the default user context for future users:
+
+```
+# semanage login -m -s targeted -s "user_u" -r s0 __default__
+```
+
+User Context | Features
+------------ | ---------
+guest_u      | No GUI, no networking, no access to the ```su``` or ```sudo``` command, no file execution in **/home** or **/tmp**
+xguest_u     | GUI, networking only via the Firefox web browser, no file execution in **/home** or **/tmp**
+user_u       | GUI and networking available
+staff_u      | GUI, networking, and the ```sudo``` command available
+sysadm_u     | GUI, networking, and the ```sudo``` and ```su``` commands available
+unconfined_u | Full system access
+
 ## Troubleshooting SELinux 
 
 There is a sequence of steps that should be taken if SELinux prevents access to
