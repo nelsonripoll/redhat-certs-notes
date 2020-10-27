@@ -91,7 +91,7 @@ The first two are not discussed here. The ```firewall-cmd``` command is installe
 The following table lists a number of frequently used ```firewall-cmd``` commands,
  along with an explanation. Note that unless otherwise specified, almost all 
  commands will work on the runtime configuration, unless the **--permanent** 
- option is specified. Many of the commands listed take the **--zone=<ZONE>**
+ option is specified. Many of the commands listed take the **--zone=ZONE**
  option to determine which zone they affect.
 
 FIREWALL-CMD COMMANDS          | EXPLANATION
@@ -101,16 +101,16 @@ FIREWALL-CMD COMMANDS          | EXPLANATION
 --get-zones                    | List all available zones.
 --get-active-zones             | List all zones currently in use, along with their interface and source information.
 --zone=ZONE                    | Use to specify which zone the changes are being applied to. If not specified, the default zone is used.
---add-source=CIDR              | Route all traffic coming from the IP address or network/netmask <CIDR> to the zone.
---remove-source=CIDR           | Remove the rule routing all traffic coming from the IP address or network/netmask <CIDR> from the zone.
---add-interface=INTERFACE      | Route all traffic coming from <INTERFACE> to the zone.
+--add-source=CIDR              | Route all traffic coming from the IP address or network/netmask CIDR to the zone.
+--remove-source=CIDR           | Remove the rule routing all traffic coming from the IP address or network/netmask CIDR from the zone.
+--add-interface=INTERFACE      | Route all traffic coming from INTERFACE to the zone.
 --change-interface=INTERFACE   | Associate the interface with a zone.
 --list-all                     | List all configured interfaces, sources, services, and ports for the zone.
 --list-all-zones               | Retrieve all information for all zones.
---add-service=SERVICE          | Allow traffic to <SERVICE> for the zone.
---remove-service=SERVICE       | Remove <SERVICE> from the allowed list for the zone.
---add-port=PORT/PROTOCOL       | Allow traffic to the <PORT/PROTOCOL> port(s) for the zone.
---remove-port=PORT/PROTOCOL    | Remove the <PORT/PROTOCOL> port(s) from the allowed list for the zone.
+--add-service=SERVICE          | Allow traffic to SERVICE for the zone.
+--remove-service=SERVICE       | Remove SERVICE from the allowed list for the zone.
+--add-port=PORT/PROTOCOL       | Allow traffic to the PORT/PROTOCOL port(s) for the zone.
+--remove-port=PORT/PROTOCOL    | Remove the PORT/PROTOCOL port(s) from the allowed list for the zone.
 --permanent                    | Add the change to the permanent configuration.
 --reload                       | Drop the runtime configuration and apply the persistent configuration.
 
