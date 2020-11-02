@@ -227,3 +227,39 @@ The keystrokes **s**, **k**, and **r** are not available if ```top``` is started
  in secure mode.
 
 ## Using Nice and Renice to Influence Process Priority
+
+The ```top``` command can be used to interactively view (and manage) processes.
+ In a default configuration, ```top``` will display two columns of interest to
+ the nice level: **NI** with the actual nice level, and **PR**, which displays
+ the nice level as mapped to a larger priority queue, with a nice level of **-20**
+ mapping to a piority of **0** and a nice level of **+19** mapping to a priority
+ of **39**. The ```ps``` command can also display nice levels for processes, 
+ although it does not do so in most of its default output formats.
+
+```
+# ps axo pid,comm,nice --sort=-nice
+```
+
+Whenever a process is started, it will normally inherit the nice level from its
+ parent. To start a process with a different nice level, run the process with
+ the ```nice``` command. Without any other options, running ```nice COMMAND```
+ will start the command with a nice level of 10. Use the **-n** flag to specify
+ the nice level.
+
+```
+# nice -n 15 restorecon -R /var/www/*
+```
+
+An existing process can have its nice level changed with the ```renice``` command.
+
+```
+renice -n 19 PID
+```
+
+The ```top``` command can also be used to (interactively) change the nice level
+ on a process. From within ```top```, press **r**, followed by the PID to be
+ changed and the new nice level.
+
+Unprivileged users are only allowed to set a positive nice level (0 to 19) or
+ raise the nice level on their existing processes. Only root can set a negative 
+ nice level (-20 to -1) or lower nice levels on existing processes.
