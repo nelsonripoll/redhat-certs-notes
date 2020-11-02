@@ -1,6 +1,6 @@
 # Process Management
 
-## Process Control Using Signals
+## Killing Processes
 
 A signal is a software interrupt delivered to a process. Signals report events
  to an executing program. Events that generate a signal can be an _error_,
@@ -119,69 +119,111 @@ bash(2176)
 # pgrep -l -u bob
 bash(2176)
 ```
+## Monitoring Process Activity
 
-### Killing Processes Exercise
+The Linux kernel calculates a _load average_ metric as an _exponential moving
+ average_ of the _load number_, a cumulative CPU count of active system resource
+ requests.
 
-Open two terminals. In the left window, start three processes that append to a
- text file. In the right window, use ```tail``` to confirm that all three
- processes are appending to the file. In the left window, view ```jobs``` to
- see all three processes "Running".
+* _Active requests_ are counted from per-CPU queues for running threads and
+ threads waiting for I/O, as the kernel tracks process activity and corresponding
+ process state changes.
+* _Load number_ is a calculation routine run every five seconds by default, which
+ accumulates and averages the active requests into a single number for all CPUs.
+* _Exponential moving average_ is a mathematical formula to smooth out trending
+ data highs and lows, increase current activity significance, and decrease
+ aging data quality.
+* _Load average_ is the load number calculation routine result. Collectively, it
+ refers to the three displayed values of system activity data averaged for the
+ last 1, 5, and 15 minutes.
 
-** LEFT **
-```
-# (while true; do echo -n "game " >> ~/outfile; sleep 1; done) &
-[1] 109844
-# (while true; do echo -n "set " >> ~/outfile; sleep 1; done) &
-[2] 109920
-# (while true; do echo -n "match " >> ~/outfile; sleep 1; done) &
-[3] 109982
-# jobs
-[1]    running    ( while true; do; echo -n "game " >> ~/outfile; sleep 1; done; )
-[2]    running    ( while true; do; echo -n "set " >> ~/outfile; sleep 1; done; )
-[3]  - running    ( while true; do; echo -n "match " >> ~/outfile; sleep 1; done; )
-```
-
-** RIGHT **
-```
-# tail -f ~/outfile
-```
-
-Suspend the "game" process using signals. Confirm that the "game" process is 
- "Stopped". In the right window, confirm "game" is no longer being written.
+```top```, ```uptime```, ```w```, and ```gnome-system-monitor``` display load
+ average values:
 
 ```
-# kill -SIGSTOP %1
-[1]  + suspended (signal)  ( while true; do; echo -n "game " >> ~/outfile; sleep 1; done; )
-[2]    running    ( while true; do; echo -n "set " >> ~/outfile; sleep 1; done; )
-[3]    running    ( while true; do; echo -n "match " >> ~/outfile; sleep 1; done; )
+# top
+top - 13:23:30 up 7 days,  6:45,  1 user,  load average: 2.92, 4.48, 5.20
+Tasks: 251 total,   1 running, 249 sleeping,   1 stopped,   0 zombie
+%Cpu(s):  1.5 us,  0.4 sy,  0.0 ni, 98.0 id,  0.0 wa,  0.1 hi,  0.0 si,  0.0 st
+MiB Mem :   7727.5 total,   3699.9 free,   1987.7 used,   2039.9 buff/cache
+MiB Swap:   7946.0 total,   7946.0 free,      0.0 used.   5016.1 avail Mem
 ```
 
-Terminate the "set" process using signals. Confirm that the "set" process has
- disappeared. In the right window, confirm "set" is no longer being written.
-
 ```
-# kill -SIGTERM %2
-# jobs
-[1]  + suspended (signal)  ( while true; do; echo -n "game " >> ~/outfile; sleep 1; done; )
-[3]    running    ( while true; do; echo -n "match " >> ~/outfile; sleep 1; done; )
+# uptime
+15:29:03 up 14 min, 1 user, load average: 2.92, 4.48, 5.20
 ```
 
-Resume the "game" process using signals. Confirm that the "game" process is
- "Running". In the right window, confirm "game" is being written again.
-
 ```
-# kill -SIGCONT %1
-# jobs
-[1]    running    ( while true; do; echo -n "game " >> ~/outfile; sleep 1; done; )
-[3]  - running    ( while true; do; echo -n "match " >> ~/outfile; sleep 1; done; )
+# w -u bob
+11:18:34 up 7 days,  4:40,  1 user,  load average: 2.92, 4.48, 5.20
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU  WHAT
+bob      tty3     tty3             26Oct20  7days  1:54m  3.11s -bash
 ```
 
-Terminate the remaining two jobs. Confirm that no jobs remain and that output has
- stopped. From the left window, terminate the right window's ```tail``` command.
+Divide the displayed load average values by the number of logical CPUs in the
+ system. A value below 1 indicates satisfactory resource utilization and minimal
+ wait times. A value above 1 indicates resource saturation and some amount of
+ service waiting times.
+
+To see how manu logical CPUs your system has, check the **/proc/cpuinfo** file:
 
 ```
-# kill -SIGTERM %1
-# kill -SIGTERM %3
-# jobs
-# pkill -SIGTERM tail
+model name	: Intel(R) Core(TM) i5-4590T CPU @ 2.00GHz
+model name	: Intel(R) Core(TM) i5-4590T CPU @ 2.00GHz
+model name	: Intel(R) Core(TM) i5-4590T CPU @ 2.00GHz
+model name	: Intel(R) Core(TM) i5-4590T CPU @ 2.00GHz
 ```
+
+With a load average of 2.92 in the last 1 minute on four CPUs, all CPUs were in 
+ use ~73% of the time (2.92 / 4 = 0.73). During the last 5 minutes, the system 
+ was overloaded by ~12% (4.48 / 4 = 1.12). During the last 15 minutes, the 
+ system was overloaded by ~30% (5.20 / 4 = 1.30). The system's load average
+ appears to be decreasing.
+
+The ```top``` program is a dynamic view of the system's processes, displaying
+ a summary header followed by a process or thread list similar to ```ps```
+ information. Unlike the static ```ps``` output, ```top``` continuously refreshes
+ at a configurable interval, and provides capabilities for column reordering,
+ sorting, and highlighting.
+
+**Default columns**
+* The process ID (**PID**).
+* User name (**USER**) is the process owner.
+* Virtual memory (**VIRT**) is all memory the process is using, including the
+ resident set, shared libraries, and any mapped or swapped memory pages. (labeled
+ **VSZ** in the ```ps``` command)
+* Resident memory (**RES**) is the physical memory used by the process, including
+ any resident shared objects. (labeled **RSS** in the ```ps``` command)
+* Process state (**S**) displays as:
+  * Uninterruptable Sleeping (**D**)
+  * Running or Runnable (**R**)
+  * Sleeping (**S**)
+  * Stopped or Traced (**T**)
+  * Zombie (**Z**)
+* CPU time (**TIME**) is the total processing time since the process started.
+ May be toggled to include cumulative time of all previous children.
+* The process command name (**COMMAND**).
+
+**Fundamental keystrokes in top**
+Key     | Purpose
+------- | -------------------------------------------------------------------------------------
+? or h  | Help for interactive keystrokes.
+l, t, m | Toggles for load, threads, and memory header lines
+1       | Toggle showing individual CPUs or a summary for all CPUs in header.
+s       | Change the refresh (screen) rate, in decimal seconds (e.g., 0.5, 1, 5).
+b       | Toggle reverse highlighting for _Running_ processes; default is bold only.
+B       | Enables use of bold in display, in the header, and for _Running_ processes.
+H       | Toggle threads; show process summary or individual threads.
+u, U    | Filter for any user name (effective, real).
+M       | Sorts process listing by memory usage, in descending order.
+P       | Sorts process listing by process utilization, in descending order.
+k       | Kill a process. When prompted, enter **PID**, then **signal**.
+r       | Renice a process. When prompted, enter **PID**, then **signal**.
+W       | Write (save) the current display configuration for use at the next ```top``` restart.
+q       | Quit.
+
+The keystrokes **s**, **k**, and **r** are not available if ```top``` is started
+ in secure mode.
+
+## Using Nice and Renice to Influence Process Priority
