@@ -213,3 +213,29 @@ An incorrect entry in **/etc/fstab** may render the system unbootable. To verify
  system back into place. Fix any errors before rebooting the machine.
 
 ## Managing Swap Space
+
+A _swap space_ is an area of a disk which can be used with the Linux kernel
+ memory management subsystem. Swap spaces are used to supplement the system RAM
+ by holding inactive pages of memory. The combined system RAM plus swap spaces
+ is called _virtual memory_.
+
+When the memory usage on a system exceeds a defined limit, the kernel will
+ reassign idle memory pages in the RAM to the swap area, and will reassign the 
+ RAM page to be used by another process.
+
+To create a swap partition, use a tool like ```gdisk``` to create a partition
+ and assign it a Linux type of **8200** for swap. The ```mkswap``` command will
+ be used to format the partition as swap.
+
+Use the ```swapon``` command to activate a formatted swap space. Use the **-a**
+ flag to activate all swap spaces listed in the **/etc/fstab**. Inside the fstab,
+ the entry for swap should have the second and third field set to **swap**. The
+ fifth and sixth field should be set to **0** because swap does not need backing
+ up nor file system checking.
+
+**/etc/fstab**
+```
+UUID=11111111-2222-3333-4444-555555555555   swap  swap  defaults  0 0
+```
+
+
