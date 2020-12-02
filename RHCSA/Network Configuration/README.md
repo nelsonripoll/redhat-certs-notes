@@ -2,7 +2,172 @@
 
 ## Validating Network Configuration
 
+The ```/sbin/ip``` command is used to show device and address information.
+
+1. An active interface has the status of **UP**.
+2. The link line specifies the hardware (MAC) address of the device.
+3. The inet line shows the IPv4 address and prefix. The broadcast address, scope, 
+ and device name are also on this line.
+4. The inet6 line shows the IPv6 information.
+
+```
+# ip addr show enp2s0
+2: enp2s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 64:00:6a:16:83:3f brd ff:ff:ff:ff:ff:ff
+    inet 192.168.33.34/24 brd 192.168.33.255 scope global dynamic noprefixroute enp2s0
+       valid_lft 239922sec preferred_lft 239922sec
+    inet6 fe80::25f:2991:4f5c:40df/64 scope link noprefixroute 
+       valid_lft forever preferred_lft forever
+```
+
+The ```ip``` command may also be used to show statistics about network performance.
+
+```
+# ip -s link show enp2s0
+2: enp2s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 64:00:6a:16:83:3f brd ff:ff:ff:ff:ff:ff
+    RX: bytes  packets  errors  dropped overrun mcast   
+    612892519  1471811  0       0       0       361240  
+    TX: bytes  packets  errors  dropped carrier collsns 
+    8356307    122610   0       0       0       0
+```
+
+The ```/sbin/ip``` command is also used to show routing information.
+
+```
+# ip route
+default via 192.168.33.1 dev enp2s0 proto dhcp metric 100 
+192.168.33.0/24 dev enp2s0 proto kernel scope link src 192.168.33.34 metric 100 
+192.168.100.0/24 dev virbr1 proto kernel scope link src 192.168.100.1 linkdown 
+192.168.122.0/24 dev virbr0 proto kernel scope link src 192.168.122.1 linkdown 
+```
+
+The ```ping``` command is used to test connectivity.
+
+To trace the path to a remote host, use either ```traceroute``` or ```tracepath```.
+ Both commands can be used to trace a path with UDP packets; however, many
+ networks block UDP and ICMP traffic.
+
+```
+# tracepath access.redhat.com
+...
+ 2:  untangle.fbdlp.local                                  0.317ms asymm  3 
+ 3:  12.221.11.33                                          1.522ms asymm  4 
+ 4:  12.247.96.133                                         2.791ms asymm  6 
+ 5:  cr1.santx.ip.att.net                                  4.145ms asymm  8 
+ 6:  12.123.236.81                                         2.885ms asymm  7 
+ 7:  12.123.236.170                                       35.241ms asymm 16 
+ 8:  hs1tx21crs.ip.att.net                                40.566ms asymm 15 
+ 9:  nwrla21crs.ip.att.net                                37.365ms asymm 14 
+10:  nwrla22crs.ip.att.net                                37.853ms asymm 13 
+11:  gbr7.cgcil.ip.att.net                                40.873ms asymm 12 
+12:  12.240.210.97                                        33.515ms asymm 11 
+13:  12.117.182.158                                       34.068ms 
+...
+```
+
+Each line in the output of ```tracepath``` represents a router or _hop_ that
+ the packet passes through between the source and the final destination.
+
+TCP services use sockets as end points for communication and are made up of an
+ IP address, protocol, and port number. Well-known names for standard ports
+ are listed in the **/etc/services** file.
+
+The ```ss``` command is used to display socket statistics.
+
+```
+# ss -ta
+State        Recv-Q       Send-Q             Local Address:Port                  Peer Address:Port
+LISTEN       0            128                      0.0.0.0:hostmon                    0.0.0.0:*
+LISTEN       0            128                      0.0.0.0:sunrpc                     0.0.0.0:*
+LISTEN       0            32                 192.168.100.1:domain                     0.0.0.0:*
+LISTEN       0            32                 192.168.122.1:domain                     0.0.0.0:*
+LISTEN       0            128                      0.0.0.0:ssh                        0.0.0.0:*
+LISTEN       0            5                      127.0.0.1:ipp                        0.0.0.0:*
+LISTEN       0            128                         [::]:hostmon                       [::]:*
+LISTEN       0            128                         [::]:sunrpc                        [::]:*
+LISTEN       0            32                             *:ftp                              *:*
+LISTEN       0            128                         [::]:ssh                           [::]:*
+LISTEN       0            5                          [::1]:ipp                           [::]:*
+```
+
+
 ## Configuring Networking With nmcli
+
+NetworkManager is a daemon that monitors and manages network settings. Command-line
+ and graphical tools talk to NetworkManager and save configuration files in the
+ **/etc/sysconfig/network-settings** directory.
+
+A _device_ is a network interface. A _connection_ is a configuration used for a
+ device which is made up of a collection of settings. Multiple connections may
+ exist for a device, but only one may be active at a time.
+
+To display a list of all connections, use ```nmcli con show```. To list only
+ the active connections, add the **--active** option.
+
+Specify a connection ID (name) to see the details of that connection. Settings
+ and property names are defined in the **nm-settings** man page.
+
+The ```nmcli dev``` command can also be used to show device status and details.
+
+When creating a new connection with ```nmcli```, the order of the arguments is
+ important. The common arguments appear first and must include the type and
+ interface. Next, specify any type-specific arguments and finally specify the
+ IP address, prefix, and gateway information. Multiple IP addresses may be
+ specified for a single device. Additional settings such as a DNS server are
+ set as modifications once the connection exists.
+
+1. Define a new connection named "default" which will autoconnect as an Ethernet
+ connection on the eth0 device using DHCP.
+2. Create a new connection named "static" and specify the IP address and gateway.
+ Do not autoconnect2. Create a new connection named "static" and specify the IP address and gateway.
+  Do not autoconnect.
+3. The system will autoconnect with the DHCP connection at boot. Change to the
+ static connection.
+4. Change back to the DHCP connection.
+
+```
+# nmcli con add con-name "default" type ethernet ifname eth0
+# nmcli con add con-name "static" ifname eth0 autoconnect no type ethernet ip4 172.25.0.10/24 gw4 172.25.0.254
+# nmcli con up "static"
+# nmcli con up "default"
+```
+
+Type options depend on the type used. To view all the type options, use
+ ```nmcli con add help```. Examples may include ethernet, wifi, bridge, bond,
+ team, VPN, and VLAN.
+
+An existing connection may be modified with ```nmcli con mod``` arguments. Use
+ ```nmcli con show "ID"``` to see a list of current values for a connection.
+
+1. Turn off autoconnect.
+2. Specify a DNS server.
+3. Some configuration arguments may have values added or removed. Add a +/-
+ symbol in front of the argument. Add a secondary DNS server.
+4. Replace the static IP address and gateway.
+5. Add a secondary IP address without a gateway.
+
+```
+# nmcli con mod "static" connection.autoconnect no
+# nmcli con mod "static" ipv4.dns 172.25.0.254
+# nmcli con mod "static" +ipv4.dns 8.8.8.8
+# nmcli con mod "static" ipv4.addresses "172.25.0.10/24 172.25.0.254"
+# nmcli con mod "static" +ipv4.addresses 10.10.10.10/16
+```
+
+**nmcli commands**
+
+Command                | Use
+---------------------- | ------------------------------------------------------------
+nmcli dev status       | List all devices.
+nmcli con show         | List all connections.
+nmcli con up "ID"      | Activate a connection.
+nmcli con down "ID"    | Deactivate a connection.
+nmcli dev dis DEV      | Bring down an interface and temporarily disable autoconnect.
+nmcli net off          | Disable all managed interfaces.
+nmcli con add ...      | Add a new connection.
+nmcli con mod "ID" ... | Modify a connection.
+nmcli con del "ID"     | Delete a connection.
 
 ## Editing Network Configuration Files
 
